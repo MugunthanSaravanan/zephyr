@@ -378,14 +378,27 @@ void test_preamble_state_releasing(struct bt_conn *conn, uint8_t ase_id,
 
 void expect_bt_bap_unicast_server_cb_called(int expected_count, const struct bt_bap_stream *expected_stream) {
     zassert_equal(mock_bap_unicast_server_cb_config_fake.call_count, expected_count,
-                  "Expected %d callbacks but got %d",
-                  expected_count, mock_bap_unicast_server_cb_config_fake.call_count);
+                  "Expected %d callbacks but got %d", expected_count, mock_bap_unicast_server_cb_config_fake.call_count);
 
     if (expected_stream) {
         zassert_equal(mock_bap_unicast_server_cb_config_fake.arg0_val, expected_stream,
                       "Expected stream does not match.");
     }
 }
+
+void expect_bt_bap_unicast_server_cb_called_multi(int expected_count, const struct bt_bap_stream **expected_streams, int num_streams) {
+    zassert_equal(mock_bap_unicast_server_cb_config_fake.call_count, expected_count,
+                  "Expected %d callbacks but got %d", expected_count, mock_bap_unicast_server_cb_config_fake.call_count);
+
+    // Iterate over all the callbacks and check if each stream matches the expected one
+    for (int i = 0; i < expected_count; i++) {
+        // You should check if the i-th callback's argument matches the i-th stream in expected_streams
+        zassert_equal(mock_bap_unicast_server_cb_config_fake.call_count > i ? mock_bap_unicast_server_cb_config_fake.arg0_val : NULL,
+                      expected_streams[i],
+                      "Expected stream %d does not match.", i);
+    }
+}
+
 
 void test_ase_state_transition(struct bt_conn *conn, uint8_t ase_id,
                                struct bt_bap_stream *stream, struct bt_iso_chan **chan,
